@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Birthday Bliss</string>
+    <string name="nav_cards">Cards</string>
+    <string name="nav_studio">Studio</string>
+    <string name="nav_games">Games</string>
+    <string name="nav_celebrate">Celebrate</string>
+    <string name="action_create_card">Create Card</string>
+    <string name="action_save_card">Save Card</string>
+    <string name="action_share_card">Share Card</string>
+    <string name="action_pick_photo">Upload Photo</string>
+    <string name="action_remove_photo">Remove Photo</string>
+    <string name="action_play_chime">Play Tune</string>
+    <string name="action_stop_chime">Mute Tune</string>
+    <string name="empty_cards_title">No Birthday Cards Yet</string>
+    <string name="empty_cards_subtitle">Design a personalized birthday card with a photo, heartfelt wish, and festive confetti!</string>
+    <string name="share_chooser_title">Share Birthday Bliss Card</string>
+</resources>
