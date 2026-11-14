@@ -1,0 +1,154 @@
+{
+  "entities": {
+    "BirthdayCard": {
+      "title": "BirthdayCard",
+      "description": "Personalized editable birthday card with optional photo path, custom quiz questions, heartfelt letter, and secret gift surprise.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated owner UID"
+        },
+        "recipientName": {
+          "type": "string",
+          "description": "Name of the birthday star"
+        },
+        "senderName": {
+          "type": "string",
+          "description": "Name of the sender"
+        },
+        "milestone": {
+          "type": "string",
+          "description": "Optional age or milestone badge"
+        },
+        "greetingTitle": {
+          "type": "string",
+          "description": "Card headline text"
+        },
+        "message": {
+          "type": "string",
+          "description": "Birthday wish message body"
+        },
+        "themeStyle": {
+          "type": "string",
+          "description": "Card visual theme enum name"
+        },
+        "photoPath": {
+          "type": "string",
+          "description": "Optional on-device photo path"
+        },
+        "photoFrameShape": {
+          "type": "string",
+          "description": "Photo frame style enum name"
+        },
+        "stickerAccent": {
+          "type": "string",
+          "description": "Card sticker accent enum name"
+        },
+        "letterSalutation": {
+          "type": "string",
+          "description": "Salutation for the sealed birthday letter"
+        },
+        "letterBody": {
+          "type": "string",
+          "description": "Long-form heartfelt birthday letter text"
+        },
+        "letterClosing": {
+          "type": "string",
+          "description": "Warm sign-off for the letter"
+        },
+        "giftSurprise": {
+          "type": "string",
+          "description": "Secret gift or treat reveal message"
+        },
+        "quizQuestions": {
+          "type": "array",
+          "description": "Bounded list of interactive quiz question objects"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server-generated creation timestamp via FieldValue.serverTimestamp()"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server-generated update timestamp via FieldValue.serverTimestamp()"
+        }
+      },
+      "required": [
+        "userId",
+        "recipientName",
+        "senderName",
+        "milestone",
+        "greetingTitle",
+        "message",
+        "themeStyle",
+        "photoFrameShape",
+        "stickerAccent",
+        "letterSalutation",
+        "letterBody",
+        "letterClosing",
+        "giftSurprise",
+        "quizQuestions",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "GameScore": {
+      "title": "GameScore",
+      "description": "User best score and play count for each birthday party mini-game.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated owner UID"
+        },
+        "gameId": {
+          "type": "string",
+          "description": "Mini-game identifier"
+        },
+        "bestScore": {
+          "type": "integer",
+          "description": "Highest achieved score"
+        },
+        "gamesPlayed": {
+          "type": "integer",
+          "description": "Total games completed"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server-generated creation timestamp via FieldValue.serverTimestamp()"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server-generated update timestamp via FieldValue.serverTimestamp()"
+        }
+      },
+      "required": [
+        "userId",
+        "gameId",
+        "bestScore",
+        "gamesPlayed",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/cards/{cardId}": {
+      "schema": {
+        "$ref": "#/entities/BirthdayCard"
+      },
+      "description": "User-owned personalized birthday cards, letters, quizzes, and secret gift reveals"
+    },
+    "/users/{userId}/gameScores/{gameId}": {
+      "schema": {
+        "$ref": "#/entities/GameScore"
+      },
+      "description": "User-owned high scores for party mini-games"
+    }
+  }
+}

@@ -1,0 +1,133 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net: default-deny all unspecified paths
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidCard(data, userId) {
+      return data.userId is string && data.userId == userId &&
+             data.recipientName is string && data.recipientName.size() >= 1 && data.recipientName.size() <= 100 &&
+             data.senderName is string && data.senderName.size() <= 100 &&
+             data.milestone is string && data.milestone.size() <= 40 &&
+             data.greetingTitle is string && data.greetingTitle.size() >= 1 && data.greetingTitle.size() <= 120 &&
+             data.message is string && data.message.size() <= 1000 &&
+             data.themeStyle is string && data.themeStyle.size() >= 1 && data.themeStyle.size() <= 60 &&
+             (!('photoPath' in data) || data.photoPath == null || (data.photoPath is string && data.photoPath.size() <= 500)) &&
+             data.photoFrameShape is string && data.photoFrameShape.size() >= 1 && data.photoFrameShape.size() <= 40 &&
+             data.stickerAccent is string && data.stickerAccent.size() >= 1 && data.stickerAccent.size() <= 40 &&
+             data.letterSalutation is string && data.letterSalutation.size() <= 120 &&
+             data.letterBody is string && data.letterBody.size() <= 4000 &&
+             data.letterClosing is string && data.letterClosing.size() <= 120 &&
+             data.giftSurprise is string && data.giftSurprise.size() <= 500 &&
+             data.quizQuestions is list && data.quizQuestions.size() <= 25 &&
+             (data.quizQuestions.size() == 0 || data.quizQuestions[0] is map);
+    }
+
+    function isValidGameScore(data, userId) {
+      return data.userId is string && data.userId == userId &&
+             data.gameId is string && data.gameId.size() >= 1 && data.gameId.size() <= 64 &&
+             data.bestScore is int && data.bestScore >= 0 &&
+             data.gamesPlayed is int && data.gamesPlayed >= 0;
+    }
+
+    match /users/{userId}/cards/{cardId} {
+      allow get: if isOwner(userId) && isValidId(cardId);
+      allow list: if isOwner(userId);
+
+      allow create: if isOwner(userId) &&
+                       isValidId(cardId) &&
+                       incoming().keys().hasAll([
+                         'userId', 'recipientName', 'senderName', 'milestone',
+                         'greetingTitle', 'message', 'themeStyle', 'photoFrameShape',
+                         'stickerAccent', 'letterSalutation', 'letterBody',
+                         'letterClosing', 'giftSurprise', 'quizQuestions',
+                         'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'recipientName', 'senderName', 'milestone',
+                         'greetingTitle', 'message', 'themeStyle', 'photoPath',
+                         'photoFrameShape', 'stickerAccent', 'letterSalutation',
+                         'letterBody', 'letterClosing', 'giftSurprise',
+                         'quizQuestions', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().createdAt is timestamp &&
+                       incoming().createdAt <= request.time &&
+                       incoming().updatedAt is timestamp &&
+                       incoming().updatedAt <= request.time &&
+                       isValidCard(incoming(), userId);
+
+      allow update: if isOwner(userId) &&
+                       isValidId(cardId) &&
+                       isValidCard(incoming(), userId) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().updatedAt is timestamp &&
+                       incoming().updatedAt <= request.time &&
+                       incoming().diff(existing()).affectedKeys().hasOnly([
+                         'recipientName', 'senderName', 'milestone', 'greetingTitle',
+                         'message', 'themeStyle', 'photoPath', 'photoFrameShape',
+                         'stickerAccent', 'letterSalutation', 'letterBody',
+                         'letterClosing', 'giftSurprise', 'quizQuestions', 'updatedAt'
+                       ]);
+
+      allow delete: if isOwner(userId) && isValidId(cardId);
+    }
+
+    match /users/{userId}/gameScores/{gameId} {
+      allow get: if isOwner(userId) && isValidId(gameId);
+      allow list: if isOwner(userId);
+
+      allow create: if isOwner(userId) &&
+                       isValidId(gameId) &&
+                       incoming().keys().hasAll([
+                         'userId', 'gameId', 'bestScore', 'gamesPlayed', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'gameId', 'bestScore', 'gamesPlayed', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().createdAt is timestamp &&
+                       incoming().createdAt <= request.time &&
+                       incoming().updatedAt is timestamp &&
+                       incoming().updatedAt <= request.time &&
+                       isValidGameScore(incoming(), userId);
+
+      allow update: if isOwner(userId) &&
+                       isValidId(gameId) &&
+                       isValidGameScore(incoming(), userId) &&
+                       incoming().userId == existing().userId &&
+                       incoming().gameId == existing().gameId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().updatedAt is timestamp &&
+                       incoming().updatedAt <= request.time &&
+                       incoming().diff(existing()).affectedKeys().hasOnly([
+                         'bestScore', 'gamesPlayed', 'updatedAt'
+                       ]);
+
+      allow delete: if isOwner(userId) && isValidId(gameId);
+    }
+  }
+}

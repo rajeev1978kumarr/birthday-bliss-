@@ -1,0 +1,6 @@
+{
+  "name": "Birthday Bliss",
+  "description": "Create, customize, and share editable birthday wish cards with photo uploads, celebration animations, and festive party mini-games.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
